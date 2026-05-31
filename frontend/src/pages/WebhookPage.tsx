@@ -3,7 +3,6 @@ import { api } from '../lib/api';
 
 export default function WebhookPage() {
   const [integration, setIntegration] = useState<any>(null);
-  const [forward, setForward] = useState({ isForwardEnabled: false, forwardUrl: '' });
   const [tokenInput, setTokenInput] = useState('');
   const [forwardUrl, setForwardUrl] = useState('');
   const [forwardEnabled, setForwardEnabled] = useState(false);
@@ -16,7 +15,6 @@ export default function WebhookPage() {
         api.get('/integrations/forward'),
       ]);
       setIntegration(int);
-      setForward(fwd);
       setForwardUrl(fwd.forwardUrl || '');
       setForwardEnabled(fwd.isForwardEnabled);
     } catch {}

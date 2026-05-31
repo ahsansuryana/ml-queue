@@ -19,7 +19,6 @@ interface Prediction {
 
 export default function PredictionPage() {
   const [logs, setLogs] = useState<Prediction[]>([]);
-  const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<any>(null);
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<string | null>(null);
@@ -28,7 +27,6 @@ export default function PredictionPage() {
   const fetchLogs = async () => {
     const data = await api.get(`/predictions?page=${page}&limit=20`);
     setLogs(data.logs);
-    setTotal(data.total);
   };
 
   const fetchStats = async () => {
