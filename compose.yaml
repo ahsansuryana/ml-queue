@@ -30,7 +30,7 @@ services:
       start_period: 15s
       retries: 3
 
-  frontend:
+  stag:
     build:
       context: ./frontend
       target: production
