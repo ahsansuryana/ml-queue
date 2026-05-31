@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QueueType {
+  NORMAL
+  FASTRACK
+}
+
+enum PredictionStatus {
+  AUTO_ACCEPTED
+  MANUAL_FIXED
+  IGNORED
+}
+
+model Streamer {
+  id        String   @id @default(uuid())
+  googleId  String   @unique
+  email     String   @unique
+  displayName String?
+  avatarUrl String?
+
+  regularPrice     Int  @default(35000)
+  bundlePrice      Int  @default(100000)
+  bundleMatchCount Int  @default(3)
+  fastrackPrice    Int  @default(50000)
+
+  createdAt DateTime @default(now())
+
+  webhook  WebhookIntegration?
+  players  Player[]
+  queue    QueueEntry[]
+  logs     PredictionLog[]
+}
+
+model WebhookIntegration {
+  id        String @id @default(uuid())
+  streamerId String @unique
+  streamer  Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+
+  webhookUrl         String  @unique
+  webhookTokenHash   String?
+  isForwardEnabled   Boolean @default(false)
+  forwardUrl         String?
+
+  createdAt DateTime @default(now())
+}
+
+model Player {
+  id        String @id @default(uuid())
+  streamerId String
+  streamer  Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+
+  idMlPlayer    String
+  namaSociaBuzz String
+  emailSociaBuzz String
+  role          String?
+
+  createdAt DateTime @default(now())
+  queue     QueueEntry[]
+
+  @@unique([streamerId, idMlPlayer])
+  @@index([streamerId])
+}
+
+model QueueEntry {
+  id        String   @id @default(uuid())
+  streamerId String
+  playerId  String
+
+  streamer Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  player   Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  queueType      QueueType @default(NORMAL)
+  done           Boolean   @default(false)
+  timestamp      DateTime  @default(now())
+  bundleGroupId  String?
+  transactionId  String    @unique
+
+  @@index([streamerId, done])
+  @@index([streamerId, playerId])
+}
+
+model PredictionLog {
+  id        String @id @default(uuid())
+  streamerId String
+  streamer  Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+
+  transactionId    String @unique
+  viewerName       String
+  donationAmount   Int
+  rawMessage       String
+  predictedQueue   Boolean
+  predictedType    QueueType?
+  predictedMatches Int
+
+  correctedQueue   Boolean?
+  correctedType    QueueType?
+  correctedMatches Int?
+
+  status    PredictionStatus @default(AUTO_ACCEPTED)
+  createdAt DateTime         @default(now())
+
+  @@index([streamerId])
+}
