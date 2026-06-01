@@ -6,22 +6,13 @@ import DashboardPage from './pages/DashboardPage';
 import WebhookPage from './pages/WebhookPage';
 import PredictionPage from './pages/PredictionPage';
 import SettingsPage from './pages/SettingsPage';
-import Sidebar from './components/Sidebar';
+import Layout from './components/Layout';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { streamer, loading } = useStreamer();
   if (loading) return <div className="flex items-center justify-center h-screen text-text-muted">Loading...</div>;
   if (!streamer) return <Navigate to="/login" />;
   return <>{children}</>;
-}
-
-function AppLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
-    </div>
-  );
 }
 
 export default function App() {
@@ -32,35 +23,19 @@ export default function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <AppLayout><DashboardPage /></AppLayout>
-            </ProtectedRoute>
-          }
+          element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>}
         />
         <Route
           path="/webhook"
-          element={
-            <ProtectedRoute>
-              <AppLayout><WebhookPage /></AppLayout>
-            </ProtectedRoute>
-          }
+          element={<ProtectedRoute><Layout><WebhookPage /></Layout></ProtectedRoute>}
         />
         <Route
           path="/predictions"
-          element={
-            <ProtectedRoute>
-              <AppLayout><PredictionPage /></AppLayout>
-            </ProtectedRoute>
-          }
+          element={<ProtectedRoute><Layout><PredictionPage /></Layout></ProtectedRoute>}
         />
         <Route
           path="/settings"
-          element={
-            <ProtectedRoute>
-              <AppLayout><SettingsPage /></AppLayout>
-            </ProtectedRoute>
-          }
+          element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>}
         />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
